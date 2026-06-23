@@ -155,11 +155,12 @@
     <label>
       <span>Model</span>
       <select id="ro-model">
-        <option value="opus">Claude Opus 4.6</option>
+        <option value="opus">Claude Opus 4.7</option>
         <option value="sonnet" selected>Claude Sonnet 4.6</option>
         <option value="haiku">Claude Haiku 4.5</option>
-        <option value="gpt5">GPT-5.2</option>
-        <option value="gpt4o">GPT-4o</option>
+        <option value="gpt55">GPT-5.5</option>
+        <option value="gpt54">GPT-5.4</option>
+        <option value="gpt54mini">GPT-5.4 mini</option>
       </select>
     </label>
     <label>
@@ -190,17 +191,18 @@
   <div class="ro-calc-compare-title">Compare across models</div>
   <div class="ro-calc-compare-grid" id="ro-compare"></div>
   <div class="ro-calc-footnote">
-    Prices reflect approximate June 2026 list rates. Volume discounts and prompt caching not included.
+    List prices as of June 2026, sourced from Anthropic and OpenAI API docs. Volume discounts, batch API, and prompt caching not included.
   </div>
 </div>
 <script>
 (function() {
   var pricing = {
-    opus:   { name: "Claude Opus 4.6",   input: 15.00, output: 75.00 },
-    sonnet: { name: "Claude Sonnet 4.6", input: 3.00,  output: 15.00 },
-    haiku:  { name: "Claude Haiku 4.5",  input: 0.25,  output: 1.25 },
-    gpt5:   { name: "GPT-5.2",           input: 5.00,  output: 15.00 },
-    gpt4o:  { name: "GPT-4o",            input: 2.50,  output: 10.00 }
+    opus:      { name: "Claude Opus 4.7",   input: 5.00,  output: 25.00 },
+    sonnet:    { name: "Claude Sonnet 4.6", input: 3.00,  output: 15.00 },
+    haiku:     { name: "Claude Haiku 4.5",  input: 1.00,  output: 5.00 },
+    gpt55:     { name: "GPT-5.5",           input: 5.00,  output: 30.00 },
+    gpt54:     { name: "GPT-5.4",           input: 2.50,  output: 15.00 },
+    gpt54mini: { name: "GPT-5.4 mini",      input: 0.75,  output: 4.50 }
   };
   function fmt(n) {
     if (!isFinite(n) || n < 0) return "$0.00";
