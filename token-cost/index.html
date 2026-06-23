@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Cost Calculator | The Rogue Orchestrator</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #0a0807;
+    color: #d4cdb8;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { padding: 16px; box-sizing: border-box; }
+  .ro-calc {
+    background: #13100c;
+    border: 1px solid #3a2f1c;
+    border-radius: 12px;
+    padding: 32px;
+    color: #d4cdb8;
+    max-width: 560px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  .ro-calc *, .ro-calc *::before, .ro-calc *::after { box-sizing: border-box; }
+  .ro-calc-eyebrow {
+    color: #c9a14a;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .ro-calc-title {
+    color: #f5f0e1;
+    font-family: Fraunces, Georgia, serif;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .ro-calc-sub {
+    color: #a39a86;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  .ro-calc-inputs {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .ro-calc-inputs label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ro-calc-inputs label span {
+    font-size: 11px;
+    color: #a39a86;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .ro-calc-inputs select,
+  .ro-calc-inputs input {
+    background: #0a0807;
+    border: 1px solid #3a2f1c;
+    border-radius: 6px;
+    color: #f5f0e1;
+    font-family: inherit;
+    font-size: 15px;
+    padding: 10px 12px;
+    width: 100%;
+  }
+  .ro-calc-inputs select:focus,
+  .ro-calc-inputs input:focus {
+    outline: none;
+    border-color: #c9a14a;
+  }
+  .ro-calc-result {
+    background: #0a0807;
+    border: 1px solid #c9a14a;
+    border-radius: 8px;
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .ro-calc-result-headline {
+    color: #c9a14a;
+    font-family: Fraunces, Georgia, serif;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .ro-calc-result-period {
+    font-size: 18px;
+    color: #f5f0e1;
+  }
+  .ro-calc-result-sub {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #a39a86;
+    font-variant-numeric: tabular-nums;
+  }
+  .ro-calc-compare-title {
+    font-size: 11px;
+    color: #a39a86;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .ro-calc-compare-grid {
+    display: grid;
+    gap: 6px;
+  }
+  .ro-calc-compare-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #0a0807;
+    border-radius: 6px;
+    font-size: 14px;
+    border: 1px solid transparent;
+  }
+  .ro-calc-compare-row.active {
+    border-color: #c9a14a;
+    background: rgba(201, 161, 74, 0.08);
+  }
+  .ro-calc-compare-row .model { color: #f5f0e1; }
+  .ro-calc-compare-row .cost {
+    color: #c9a14a;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .ro-calc-footnote {
+    font-size: 11px;
+    color: #6c6a64;
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="ro-calc">
+  <div class="ro-calc-eyebrow">TOKEN COST CALCULATOR</div>
+  <div class="ro-calc-title">What is your AI workflow actually costing you?</div>
+  <div class="ro-calc-sub">Punch in your usage. See it across every model. Find out if you should switch.</div>
+  <div class="ro-calc-inputs">
+    <label>
+      <span>Model</span>
+      <select id="ro-model">
+        <option value="opus">Claude Opus 4.6</option>
+        <option value="sonnet" selected>Claude Sonnet 4.6</option>
+        <option value="haiku">Claude Haiku 4.5</option>
+        <option value="gpt5">GPT-5.2</option>
+        <option value="gpt4o">GPT-4o</option>
+      </select>
+    </label>
+    <label>
+      <span>Input tokens per request</span>
+      <input id="ro-input" type="number" value="2000" min="0">
+    </label>
+    <label>
+      <span>Output tokens per request</span>
+      <input id="ro-output" type="number" value="800" min="0">
+    </label>
+    <label>
+      <span>Requests per day</span>
+      <input id="ro-requests" type="number" value="50" min="0">
+    </label>
+    <label>
+      <span>Working days per month</span>
+      <input id="ro-days" type="number" value="22" min="0">
+    </label>
+  </div>
+  <div class="ro-calc-result">
+    <div class="ro-calc-result-headline">
+      <span id="ro-monthly">$0.00</span><span class="ro-calc-result-period"> / month</span>
+    </div>
+    <div class="ro-calc-result-sub">
+      <span id="ro-daily">$0.00</span> per day &middot; <span id="ro-yearly">$0.00</span> per year
+    </div>
+  </div>
+  <div class="ro-calc-compare-title">Compare across models</div>
+  <div class="ro-calc-compare-grid" id="ro-compare"></div>
+  <div class="ro-calc-footnote">
+    Prices reflect approximate June 2026 list rates. Volume discounts and prompt caching not included.
+  </div>
+</div>
+<script>
+(function() {
+  var pricing = {
+    opus:   { name: "Claude Opus 4.6",   input: 15.00, output: 75.00 },
+    sonnet: { name: "Claude Sonnet 4.6", input: 3.00,  output: 15.00 },
+    haiku:  { name: "Claude Haiku 4.5",  input: 0.25,  output: 1.25 },
+    gpt5:   { name: "GPT-5.2",           input: 5.00,  output: 15.00 },
+    gpt4o:  { name: "GPT-4o",            input: 2.50,  output: 10.00 }
+  };
+  function fmt(n) {
+    if (!isFinite(n) || n < 0) return "$0.00";
+    if (n < 0.01 && n > 0) return "$" + n.toFixed(4);
+    if (n < 1) return "$" + n.toFixed(3);
+    return "$" + n.toFixed(2);
+  }
+  function calcMonthly(model, inT, outT, reqs, days) {
+    var p = pricing[model];
+    if (!p) return 0;
+    var perReq = (inT * p.input + outT * p.output) / 1000000;
+    return perReq * reqs * days;
+  }
+  function recalc() {
+    var model = document.getElementById("ro-model").value;
+    var inT = +document.getElementById("ro-input").value || 0;
+    var outT = +document.getElementById("ro-output").value || 0;
+    var reqs = +document.getElementById("ro-requests").value || 0;
+    var days = +document.getElementById("ro-days").value || 0;
+    var monthly = calcMonthly(model, inT, outT, reqs, days);
+    var daily = days > 0 ? monthly / days : 0;
+    var yearly = monthly * 12;
+    document.getElementById("ro-monthly").textContent = fmt(monthly);
+    document.getElementById("ro-daily").textContent = fmt(daily);
+    document.getElementById("ro-yearly").textContent = fmt(yearly);
+    var compareEl = document.getElementById("ro-compare");
+    compareEl.innerHTML = "";
+    Object.keys(pricing).forEach(function(key) {
+      var p = pricing[key];
+      var cost = calcMonthly(key, inT, outT, reqs, days);
+      var row = document.createElement("div");
+      row.className = "ro-calc-compare-row" + (key === model ? " active" : "");
+      var modelSpan = document.createElement("span");
+      modelSpan.className = "model";
+      modelSpan.textContent = p.name;
+      var costSpan = document.createElement("span");
+      costSpan.className = "cost";
+      costSpan.textContent = fmt(cost) + " / mo";
+      row.appendChild(modelSpan);
+      row.appendChild(costSpan);
+      compareEl.appendChild(row);
+    });
+  }
+  ["ro-model", "ro-input", "ro-output", "ro-requests", "ro-days"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", recalc);
+  });
+  recalc();
+})();
+</script>
+</body>
+</html>
